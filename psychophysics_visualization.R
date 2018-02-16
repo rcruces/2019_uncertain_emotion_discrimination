@@ -1,7 +1,9 @@
+# Libraries
 library(gplots)
-source("/home/rr/git_here/R-plots/R-colors/colormaps_functions.R")
+
 # Set path
-home="/home/rr/"
+home="/misc/ernst/rcruces/"
+source(paste0(home,"git_here/R-plots/R-colors/colormaps_functions.R"))
 setwd(paste0(home,"git_here/2018_music_psychophysics"))
 
 # Read the Subjects Information
@@ -173,7 +175,7 @@ prop.table(freqtable) %>% addmargins %>% pander("Proportions")
 # LDA plot, Only first 2 used
 plot(m, abbrev=1,dimen = 3)
 
-# 
+# Gets the predicted values for each discriminant function
 d$LDA1 <- p$x[,1]
 d$LDA2 <- p$x[,2]
 d$LDA3 <- p$x[,3]
@@ -201,10 +203,9 @@ ggplot(d, aes(LDA1, LDA2, color = type)) +
   coord_equal()
 
 
-
 # PLots the First Dimension
 par(mfrow=c(1,2))
-plot(d$LDA1,d$LDA2,col="white",bg=c("red","green","blue","orange")[df$type],pch=21,cex=2.5)
+plot(d$LDA1,d$LDA2,col="white",bg=c("red","green","blue","orange")[d$type],pch=21,cex=2.5)
 #plot(d$LDA2,d$LDA3,col=c("red","green","blue","orange")[df$type])
 
 library(klaR)
@@ -215,8 +216,8 @@ drawparti(grouping = d$type, x = d$LDA1, y = d$LDA2, xlab = "LDA1", ylab = "LDA2
 plot(m, dimen=1, type="both") # m is the fit from lda 
 
 # Scatterplot for 3 Group Problem
-pairs(df[c("nb0","nb2","nb4","nb8","nb16","nb32","nb64")], main="LDA Accuracy", pch=22,
-      bg=c("red","green","blue","orange")[unclass(df$type)])
+pairs(d[c("nb0","nb2","nb4","nb8","nb16","nb32","nb64")], main="LDA Accuracy", pch=22,
+      bg=c("red","green","blue","orange")[unclass(d$type)])
 
 # MANOVA follow up
 library(tables)
