@@ -1,4 +1,26 @@
+---
+title: "Psychophysic Visualization & Analises"
+author: "Raúl Rodríguez-Cruces"
+date: "20 de febrero de 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Group Heatmaps
+This was created calculating the accuracy of each subject per stimuli. First stimuli where binarized based in the answer for the **Fine structure emotion**, with 1 if is correct and 0 when wrong. The total was divided by the total amount of stimuli or each category (nb0...nb64).  
+
+## Accuracy for both emotions
+```{r Heatmap Accuracy, echo=FALSE, warning=FALSE, message=FALSE}
 library(gplots)
+library(MASS)
+library(pander)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+
 source("/home/rr/git_here/R-plots/R-colors/colormaps_functions.R")
 # Set path
 home="/home/rr/"
@@ -25,12 +47,12 @@ calAccu <- function(df){
   colnames(accuracy) <- unique(df$fts)
   return(as.matrix(accuracy))  
 }
-
-# Heatmap
-accuracy <- calAccu(result)
+# Color-palette
 colG<-c("lightskyblue","deepskyblue","dodgerblue2","dodgerblue4","navy","red","firebrick2","firebrick3","firebrick","firebrick4")
-col.map <- optim.color(accuracy,colG)
-heatmap.2(accuracy,Colv=FALSE,main= "Fine Structure Accuracy",
+# Color-map
+col.map <- optim.color(calAccu(result),colG)
+# Heatmap of all subjects, Clustered by Group
+heatmap.2(calAccu(result),Colv=FALSE,main= "Fine Structure Accuracy",
           density.info="histogram",
           dendrogram='row',
           trace="none",
@@ -40,6 +62,13 @@ heatmap.2(accuracy,Colv=FALSE,main= "Fine Structure Accuracy",
           breaks = col.map$palette.breaks,
           srtCol=1,  
           RowSideColors = c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")[cases$class])
+```
+  
+  
+## HAPPY - Group Heatmap  
+Ordered by row clusterization
+  
+```{r heatmap happy, echo=FALSE}
 j=1
 Col=c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")
 for (i in levels(cases$class)) {
@@ -56,11 +85,45 @@ for (i in levels(cases$class)) {
             RowSideColors = rep(Col[j],length(indx)))
   j=j+1
 }
+```
 
+## SAD - Group Heatmap  
+Ordered by row clusterization  
 
-# -------------------------------------------------------------------------------------------------------------------------- #
-# Happy vs Sad \  Female vs Men
-# -------------------------------------------------------------------------------------------------------------------------- #
+```{r heatmap sad, echo=FALSE}
+j=1
+Col=c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")
+for (i in levels(cases$class)) {
+  indx <- which(cases$class==i)
+  heatmap.2(calAccu(sad)[indx,],Colv=FALSE,main= paste(i,"fst-HAP"),
+            density.info="histogram",Rowv = TRUE,
+            dendrogram='row',
+            trace="row",
+            tracecol=NA,
+            key.title = "Discriminability",     
+            col    = col.map$color.palette,   # Colormap
+            breaks = col.map$palette.breaks,
+            srtCol=1,  
+            RowSideColors = rep(Col[j],length(indx)))
+  j=j+1
+}
+```
+
+# Happy vs Sad  
+
+```{r Happy vs sad, echo=FALSE, message=FALSE, warning=FALSE}
+# FUNCTION for heatmap plotting
+hmap <- function(Mtx, Title){
+heatmap.2(Mtx,Colv=FALSE,main= Title,
+            density.info="histogram",Rowv = TRUE,
+            dendrogram='row',
+            trace="row",
+            tracecol=NA,
+            key.title = "Discriminability",     
+            col    = col.map$color.palette,   # Colormap
+            breaks = col.map$palette.breaks,
+            srtCol=1)}
+
 library(corrplot)
 indx <- which(cases$gender=="M")
 M.sad <- calAccu(sad)[indx,2:7]
@@ -68,13 +131,26 @@ M.hap <- calAccu(hap)[indx,2:7]
 indx <- which(cases$gender=="F")
 F.sad <- calAccu(sad)[indx,2:7]
 F.hap <- calAccu(hap)[indx,2:7]
-par(mfrow=c(2,2))
-corrplot(cor(M.hap,M.hap)-cor(F.sad,F.sad), title = "Males Happy",method = "square",diag = FALSE)
-corrplot(cor(F.sad,F.sad), title = "Female Happy",method = "square",diag = FALSE)
-corrplot(cor(M.hap,M.hap), title = "Males Happy",method = "square",diag = FALSE)
-corrplot(cor(F.hap,F.hap), title = "Female Happy",method = "square",diag = FALSE)
+# Heatmap: Happy-Sad
+hmap(M.sad,"Males: SAD")
+hmap(F.sad,"Females: SAD")
+hmap(M.hap,"Males: HAPPY")
+hmap(F.hap,"Females: HAPPY")
+```
 
-#### Blank Plot ####
+## Stimuli Correlation for Female-Male | Happy-Sad  
+```{r correlation Happy-sad, echo=FALSE, message=FALSE, warning=FALSE}
+par(mfrow=c(2,2))
+corrplot(cor(M.hap,M.hap), method = "color", type = "upper",  number.cex = 1.5, addCoef.col = "white", tl.col = "black", tl.srt = 90, diag = FALSE,title = "Male Happy")
+corrplot(cor(F.hap,F.hap), method = "color", type = "upper",  number.cex = 1.5, addCoef.col = "white", tl.col = "black", tl.srt = 90, diag = FALSE,title = "Female Happy")
+corrplot(cor(M.sad,M.sad), method = "color", type = "upper",  number.cex = 1.5, addCoef.col = "white", tl.col = "black", tl.srt = 90, diag = FALSE,title = "Male Sad")
+corrplot(cor(F.sad,F.sad), method = "color", type = "upper",  number.cex = 1.5, addCoef.col = "white", tl.col = "black", tl.srt = 90, diag = FALSE,title = "Female Sad")
+```
+
+## Lines for all Subjects  
+  
+```{r Lines-dots, echo=FALSE, warning=FALSE, message=FALSE}
+accuracy <- calAccu(result)
 blank.plot <- function (X,lab,Main) {
   Ax.Col="black"
   Main <- as.character(Main)
@@ -108,7 +184,114 @@ apply(accuracy[cases$class == "poor",],1, function(x) lines(x,col="mediumpurple"
 lines(x,col="mediumpurple",lwd=2.5)
 points(x,bg="mediumpurple",lwd=2,cex=1.5,pch=21,col="white")
 
-# ----------------------------------------------------------------------------------- #
+```
+
+# Linear Discriminant Analysis  
+BAD NEWS, if I take out the nb0 the effect is less strong for discriminating groups.  
+IT IS SO BAD THAT IT LOOKS LIKE CONFFETIS, bahahahaha.
+```{r lda, echo=FALSE,warning=FALSE,message=FALSE}
+#### LINEAR DISCRIMINANT ANALYSIS ####
+# Data Reshape
+d <- data.frame(cbind(cases$class,cases$age,cases$music.yrs,cases$gender,accuracy)) 
+colnames(d) <- c("type","age","music.yrs","gender","nb0","nb2","nb4","nb8","nb16","nb32","nb64")
+d$type <- cases$class
+d$id <- rownames(d)
+# Linear Discriminant model MASS library
+m <- lda(type~+nb2+nb4+nb8+nb16+nb32+nb64+age, d)
+# Obtains the predictor from the LDA to an object
+p <- predict(m)
+# Accuracy of prediction
+freqtable <- table(p$class, d$type)
+# Percent correct of each category of G
+diag(prop.table(freqtable))
+rownames(freqtable) <- paste0("Predicted ", d$type %>% levels)
+freqtable %>% addmargins %>% pander("Observed vs. Predicted Frequencies")
+# Total percent correct
+sum(diag(prop.table(freqtable)))
+# Proportions
+prop.table(freqtable) %>% addmargins %>% pander("Proportions")
+# LDA, 3  used: 
+#plot(m, abbrev=1,dimen = 3)
+# LDA to variables
+d$LDA1 <- p$x[,1]
+d$LDA2 <- p$x[,2]
+d$LDA3 <- p$x[,3]
+# LDA functions distributions
+par(mfrow=c(1,3))
+ggplot(d, aes(LDA1, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
+ggplot(d, aes(LDA2, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
+ggplot(d, aes(LDA3, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
+# Table
+gMeans <- d %>% group_by(type) %>% select(LDA1,LDA2,LDA3) %>%  summarise_each(funs(mean)) 
+gMeans %>% pander
+# FIRST two LDA
+ggplot(d, aes(LDA1, LDA2, color = type)) + 
+  geom_point(alpha = 0.5) + 
+  geom_text(data = gMeans, 
+            aes(label = type),
+            color = "black", 
+            vjust = 1.75) + 
+  geom_point(data = gMeans, 
+             aes(fill = type), 
+             size = 4, 
+             color = "black", 
+             pch = 21) + 
+  theme(legend.position = "none") +
+  coord_equal()
+
+# PLots the First Dimension
+par(mfrow=c(1,2))
+plot(d$LDA1,d$LDA2,col="white",bg=c("red","green","blue","orange")[d$type],pch=21,cex=2.5)
+plot(d$LDA2,d$LDA3,col="white",bg=c("red","green","blue","orange")[d$type],pch=21,cex=2.5)
+
+library(klaR)
+drawparti(grouping = d$type, x = d$LDA1, y = d$LDA2, xlab = "LDA1", ylab = "LDA2")
+drawparti(grouping = d$type, x = d$LDA2, y = d$LDA3, xlab = "LDA2", ylab = "LDA3")
+# Panels of histograms and overlayed density plots
+
+
+# Scatterplot for 3 Group Problem
+#pairs(d[c("nb2","nb4","nb8","nb16","nb32","nb64")], main="LDA Accuracy", pch=22, bg=c("red","green","blue","orange")[unclass(d$type)])
+
+```
+
+```{r, echo=FALSE}
+par(mfrow=c(1,1))
+plot(m, dimen=1, type="both") # m is the fit from lda 
+```
+  
+## Cannonical Discriminant Variables
+```{r cdv, echo=FALSE,warning=FALSE,message=FALSE}
+# MANOVA follow up
+library(tables)
+m <- lm(cbind(nb2, nb4, nb8, nb16, nb32, nb64, age) ~ type, d)
+#etasq(m %>% manova)
+#par(mfrow=c(1,1))
+#heplot(m,variables =)
+# Canonical Function analysis
+library(candisc)
+cca <- m %>% candisc 
+cca %>% summary(coef = c("raw", "std", "structure"))
+
+# RAW Coefficients
+cca$coeffs.raw %>% pander("Raw Coefficients")
+# STANDARIZED coefficients
+cca$coeffs.std %>% pander("Standardized Coefficients")
+# STRUCTURE Coefficients
+cca$structure %>% pander("Structure Coefficients")
+
+# CANNONICAL DISCRIMINANT ANALYSIS
+par(xpd = T, bty = "n",pty = "s")
+heplot(cca)
+
+myColors <- hsv((c(0,80,160,240) + 80)/360,s = 0.8,v = 0.8,0.7)
+#cca %>% plot(col = myColors, pch = rep(16,4), bty = "n", xpd = T)
+plot(cca, col = myColors, pch = rep(16,4), bty = "n", xpd = T,var.col = "red4")
+```
+
+# Linear Mixed Effects Model  
+I DON'T REMEMBER IF THIS IS CORRECT I WROTE IT ON A PAPER AT THE LAB. I NEED TO CHECK THIS TOMORROW.
+```{r lme, echo=FALSE,warning=FALSE,message=FALSE}
 # LINEAR MIXED EFFECTS MODEL
 library(nlme) #Linear mixed effects models
 library(lattice) # plots
@@ -154,113 +337,12 @@ plot(xyplot(cbind(response, pred1)~fts | type, data = d, panel=pfun, layout=c(2,
 dev.new()
 plot(xyplot(cbind(response, pred2)~fts | type, data = d, panel=pfun, layout=c(2,2),ylab="Response",xlab="Fine Structure"))
 
-# ----------------------------------------------------------------------------------- #
-#### ANOVA Comparisons #### 
+```
+
+# ANOVA  
+Is accuracy in the response given by the class belonging and gender?  
+```{r anova, echo=FALSE,message=FALSE, warning=FALSE}
 mod1 <- aov(accuracy[,1]~factor(cases$class)+factor(cases$gender))
 TukeyHSD(mod1)
-
-# ----------------------------------------------------------------------------------- #
-#### LINEAR DISCRIMINANT ANALYSIS ####
-# Data Reshape
-d <- data.frame(cbind(cases$class,cases$age,cases$music.yrs,cases$gender,accuracy)) 
-colnames(d) <- c("type","age","music.yrs","gender","nb0","nb2","nb4","nb8","nb16","nb32","nb64")
-d$type <- cases$class
-d$id <- rownames(d)
-library(MASS)
-library(pander)
-library(magrittr)
-library(dplyr)
-library(ggplot2)
-
-# Linear Discriminant model MASS library
-m <- lda(type~+nb2+nb4+nb8+nb16+nb32+nb64+age, d)
-# Obtains the predictor from the LDA to an object
-p <- predict(m)
-
-# Accuracy of prediction
-freqtable <- table(p$class, d$type)
-# Percent correct of each category of G
-diag(prop.table(freqtable))
-rownames(freqtable) <- paste0("Predicted ", d$type %>% levels)
-freqtable %>% addmargins %>% pander("Observed vs. Predicted Frequencies")
-
-# Total percent correct
-sum(diag(prop.table(freqtable)))
-
-# Proportions
-prop.table(freqtable) %>% addmargins %>% pander("Proportions")
-
-# LDA plot, Only first 2 used
-plot(m, abbrev=1,dimen = 3)
-
-# LDA to variables
-d$LDA1 <- p$x[,1]
-d$LDA2 <- p$x[,2]
-d$LDA3 <- p$x[,3]
-par(mfrow=c(1,3))
-ggplot(d, aes(LDA1, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
-ggplot(d, aes(LDA2, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
-ggplot(d, aes(LDA3, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
-
-
-gMeans <- d %>% group_by(type) %>% select(LDA1,LDA2,LDA3) %>%  summarise_each(funs(mean)) 
-gMeans %>% pander
-
-ggplot(d, aes(LDA1, LDA2, color = type)) + 
-  geom_point(alpha = 0.5) + 
-  geom_text(data = gMeans, 
-            aes(label = type),
-            color = "black", 
-            vjust = 1.75) + 
-  geom_point(data = gMeans, 
-             aes(fill = type), 
-             size = 4, 
-             color = "black", 
-             pch = 21) + 
-  theme(legend.position = "none") +
-  coord_equal()
-
-# PLots the First Dimension
-par(mfrow=c(1,2))
-plot(d$LDA1,d$LDA2,col="white",bg=c("red","green","blue","orange")[d$type],pch=21,cex=2.5)
-#plot(d$LDA2,d$LDA3,col=c("red","green","blue","orange")[df$type])
-
-library(klaR)
-drawparti(grouping = d$type, x = d$LDA1, y = d$LDA2, xlab = "LDA1", ylab = "LDA2")
-#drawparti(grouping = d$type, x = d$LDA1, y = d$LDA3, xlab = "LDA1", ylab = "LDA3")
-# Panels of histograms and overlayed density plots
-# for 1st discriminant function
-plot(m, dimen=1, type="both") # m is the fit from lda 
-
-# Scatterplot for 3 Group Problem
-pairs(d[c("nb0","nb2","nb4","nb8","nb16","nb32","nb64")], main="LDA Accuracy", pch=22,
-      bg=c("red","green","blue","orange")[unclass(d$type)])
-
-# MANOVA follow up
-library(tables)
-m <- lm(cbind(nb2, nb4, nb8, nb16, nb32, nb64, age) ~ type, d)
-m %>% manovaTable
-etasq(m %>% manova)
-
-heplot(m,variables =)
-
-# Canonical Function analysis
-library(candisc)
-cca <- m %>% candisc 
-cca %>% summary(coef = c("raw", "std", "structure"))
-
-# RAW Coefficients
-cca$coeffs.raw %>% pander("Raw Coefficients")
-# STANDARIZED coefficients
-cca$coeffs.std %>% pander("Standardized Coefficients")
-# STRUCTURE Coefficients
-cca$structure %>% pander("Structure Coefficients")
-
-# CANNONICAL DISCRIMINANT ANALYSIS
-par(xpd = T, bty = "n",pty = "s")
-heplot(cca)
-
-myColors <- hsv((c(0,80,160,240) + 80)/360,s = 0.8,v = 0.8,0.7)
-cca %>% plot(col = myColors, pch = rep(16,4), bty = "n", xpd = T)
-plot(cca, col = myColors, pch = rep(16,4), bty = "n", xpd = T,var.col = "red4")
+```
 
