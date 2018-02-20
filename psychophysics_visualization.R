@@ -1,7 +1,9 @@
+# Libraries
 library(gplots)
-source("/home/rr/git_here/R-plots/R-colors/colormaps_functions.R")
+
 # Set path
-home="/home/rr/"
+home="/misc/ernst/rcruces/"
+source(paste0(home,"git_here/R-plots/R-colors/colormaps_functions.R"))
 setwd(paste0(home,"git_here/2018_music_psychophysics"))
 
 # Read the Subjects Information
@@ -193,7 +195,11 @@ prop.table(freqtable) %>% addmargins %>% pander("Proportions")
 # LDA plot, Only first 2 used
 plot(m, abbrev=1,dimen = 3)
 
+<<<<<<< HEAD
 # LDA to variables
+=======
+# Gets the predicted values for each discriminant function
+>>>>>>> 153206cb29502e024310e72f53e7f386e72f3302
 d$LDA1 <- p$x[,1]
 d$LDA2 <- p$x[,2]
 d$LDA3 <- p$x[,3]
@@ -220,6 +226,10 @@ ggplot(d, aes(LDA1, LDA2, color = type)) +
   theme(legend.position = "none") +
   coord_equal()
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 153206cb29502e024310e72f53e7f386e72f3302
 # PLots the First Dimension
 par(mfrow=c(1,2))
 plot(d$LDA1,d$LDA2,col="white",bg=c("red","green","blue","orange")[d$type],pch=21,cex=2.5)

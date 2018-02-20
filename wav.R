@@ -13,6 +13,8 @@ plot(wav1@left,type='l')
 
 # Counts the number of points of the file
 N <- length(wav1@left)
+<<<<<<< HEAD
+=======
 
 plot.frequency.spectrum <- function(X.k, xlimits=c(0,length(X.k))) {
   plot.data  <- cbind(0:(length(X.k)-1), Mod(X.k))
@@ -27,3 +29,4 @@ plot.frequency.spectrum <- function(X.k, xlimits=c(0,length(X.k))) {
 
 X.k <-fft(wav1@left)
 plot.frequency.spectrum(X.k)
+>>>>>>> d9924411aef0d0f353bd498bd49aa91e033eaff5
