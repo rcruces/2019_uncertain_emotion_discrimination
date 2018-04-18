@@ -9,18 +9,21 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Group Heatmaps
-This was created calculating the accuracy of each subject per stimuli. First stimuli where binarized based in the answer for the **Fine structure emotion**, with 1 if is correct and 0 when wrong. The total was divided by the total amount of stimuli or each category (nb0...nb64).  
-
-## Accuracy for both emotions
-```{r Heatmap Accuracy, echo=FALSE, warning=FALSE, message=FALSE}
+# R basic packages
+```{r packages, echo=TRUE,message=FALSE, warning=FALSE}
 library(gplots)
 library(MASS)
 library(pander)
 library(magrittr)
 library(dplyr)
 library(ggplot2)
+```
 
+# Group Heatmaps
+This was created calculating the accuracy of each subject per stimuli. First stimuli where binarized based in the answer for the **Fine structure emotion**, with 1 if is correct and 0 when wrong. The total was divided by the total amount of stimuli or each category (nb0...nb64).  
+
+## Accuracy for both emotions
+```{r Heatmap Accuracy, echo=FALSE, warning=FALSE, message=FALSE}
 source("/home/rr/git_here/R-plots/R-colors/colormaps_functions.R")
 # Set path
 home="/home/rr/"
@@ -48,7 +51,7 @@ calAccu <- function(df){
   return(as.matrix(accuracy))  
 }
 # Color-palette
-colG<-c("lightskyblue","deepskyblue","dodgerblue2","dodgerblue4","navy","red","firebrick2","firebrick3","firebrick","firebrick4")
+colG<-c("navy","dodgerblue4","dodgerblue2","deepskyblue","lightskyblue","red","firebrick2","firebrick3","firebrick","firebrick4")
 # Color-map
 col.map <- optim.color(calAccu(result),colG)
 # Heatmap of all subjects, Clustered by Group
@@ -155,40 +158,40 @@ blank.plot <- function (X,lab,Main) {
   Ax.Col="black"
   Main <- as.character(Main)
   plot(X,ylim=c(0,1),xlim = c(0,length(X)+1),pch=19,ylab="score",main=Main,col=NA,xaxt='n',bty='n',xlab="",axes = FALSE,
-       las=1,col.axis=Ax.Col,col.lab=Ax.Col,col.main=Ax.Col,cex.axis=1.2,cex=seq(0.5,1.5,length.out = 35),cex.main=3)
+       las=1,col.axis=Ax.Col,col.lab=Ax.Col,col.main=Ax.Col,cex.axis=1.2,cex=seq(0.5,1.5,length.out = 35),cex.main=2)
   polygon(c(0,0,8,8,0),c(0,1,1,0,0),col="gray85",border = NA)
   abline(h=seq(0,1,0.2),lty=1,col="white")
   axis(1, at=1:7, col.axis=Ax.Col,labels=lab, lty=1, col=Ax.Col, las=1,lwd=3,cex.axis=1,col.lab=Ax.Col)
   axis(2, at=seq(0,1,0.2), labels=seq(0,1,0.2), lty=1, col.axis=Ax.Col,las=1,lwd=3,cex.axis=1.2,col.lab=Ax.Col,col=Ax.Col)
 }
-par(mfrow=c(1,4))
-x <- apply(accuracy[cases$class == "poor",],2,mean)
+lines.plot <- function(y,Col,Tilte) {
+  x <- apply(y,2,mean)
+  blank.plot(x,lab=colnames(accuracy),Main = Tilte)
+  apply(y,1, function(x) lines(x,col=Col,lwd=0.5))
+  lines(x,col=Col,lwd=2.5)
+  points(x,bg=Col,lwd=2,cex=1.5,pch=21,col="white")
+  
+}
+par(mfrow=c(2,2))
+# FEMALE PERFORMANCE
+lines.plot(accuracy[cases$class == "poor" & cases$gender=="M",],"mediumpurple", "Poor Male")
+lines.plot(accuracy[cases$class == "poor" & cases$gender=="F",],"mediumpurple", "Poor Female")
+# MALE PERFORMANCE
+lines.plot(accuracy[cases$class == "best" & cases$gender=="M",],"mediumpurple4", "Best Male")
+lines.plot(accuracy[cases$class == "best" & cases$gender=="F",],"mediumpurple4", "Best Female")
 # HIGH PERFORMANCE
-blank.plot(x,lab=colnames(accuracy),Main = "high")
-apply(accuracy[cases$class == "high",],1, function(x) lines(x,col="darkolivegreen",lwd=0.5))
-lines(apply(accuracy[cases$class == "high",],2,mean),col="darkolivegreen",lwd=2.5)
-points(apply(accuracy[cases$class == "high",],2,mean),bg="darkolivegreen",lwd=2,cex=2,pch=21,col="white")
+lines.plot(accuracy[cases$class == "high" & cases$gender=="M",],"darkolivegreen", "High Male")
+lines.plot(accuracy[cases$class == "high" & cases$gender=="F",],"darkolivegreen", "High Female")
 # LOW PERFORMANCE
-blank.plot(x,lab=colnames(accuracy),Main = "low")
-apply(accuracy[cases$class == "low",],1, function(x) lines(x,col="darkolivegreen3",lwd=0.5))
-lines(apply(accuracy[cases$class == "low",],2,mean),col="darkolivegreen3",lwd=2.5)
-points(apply(accuracy[cases$class == "low",],2,mean),bg="darkolivegreen3",lwd=2,cex=2,pch=21,col="white")
-# BEST PERFORMANCE
-blank.plot(x,lab=colnames(accuracy),Main = "best")
-apply(accuracy[cases$class == "best",],1, function(x) lines(x,col="mediumpurple4",lwd=0.5))
-lines(apply(accuracy[cases$class == "best",],2,mean),col="mediumpurple4",lwd=2.5)
-points(apply(accuracy[cases$class == "best",],2,mean),bg="mediumpurple4",lwd=2,cex=1.5,pch=21,col="white")
-# POOR PERFORMANCE
-blank.plot(x,lab=colnames(accuracy),Main = "poor")
-apply(accuracy[cases$class == "poor",],1, function(x) lines(x,col="mediumpurple",lwd=0.5))
-lines(x,col="mediumpurple",lwd=2.5)
-points(x,bg="mediumpurple",lwd=2,cex=1.5,pch=21,col="white")
+lines.plot(accuracy[cases$class == "low" & cases$gender=="M",],"darkolivegreen3", "Low Male")
+lines.plot(accuracy[cases$class == "low" & cases$gender=="F",],"darkolivegreen3", "Low Female")
+
 
 ```
 
 # Linear Discriminant Analysis  
-BAD NEWS, if I take out the nb0 the effect is less strong for discriminating groups.  
-IT IS SO BAD THAT IT LOOKS LIKE CONFFETIS, bahahahaha.
+I ran the LDA analysis again using nb0 aand without the age.  
+$Group~nb0+nb2+nb4+nb8+nb16+nb32+nb64$  
 ```{r lda, echo=FALSE,warning=FALSE,message=FALSE}
 #### LINEAR DISCRIMINANT ANALYSIS ####
 # Data Reshape
@@ -197,7 +200,7 @@ colnames(d) <- c("type","age","music.yrs","gender","nb0","nb2","nb4","nb8","nb16
 d$type <- cases$class
 d$id <- rownames(d)
 # Linear Discriminant model MASS library
-m <- lda(type~+nb2+nb4+nb8+nb16+nb32+nb64+age, d)
+m <- lda(type~nb0+nb2+nb4+nb8+nb16+nb32+nb64, d)
 # Obtains the predictor from the LDA to an object
 p <- predict(m)
 # Accuracy of prediction
@@ -217,7 +220,6 @@ d$LDA1 <- p$x[,1]
 d$LDA2 <- p$x[,2]
 d$LDA3 <- p$x[,3]
 # LDA functions distributions
-par(mfrow=c(1,3))
 ggplot(d, aes(LDA1, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
 ggplot(d, aes(LDA2, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
 ggplot(d, aes(LDA3, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
@@ -239,11 +241,13 @@ ggplot(d, aes(LDA1, LDA2, color = type)) +
   theme(legend.position = "none") +
   coord_equal()
 
-# PLots the First Dimension
-par(mfrow=c(1,2))
-plot(d$LDA1,d$LDA2,col="white",bg=c("red","green","blue","orange")[d$type],pch=21,cex=2.5)
-plot(d$LDA2,d$LDA3,col="white",bg=c("red","green","blue","orange")[d$type],pch=21,cex=2.5)
+# PLots the LDA
+library(scatterplot3d)
+source('http://www.sthda.com/sthda/RDoc/functions/addgrids3d.r')
+scatterplot3d(d$LDA1,d$LDA2,d$LDA3,color = c("red","green","blue","orange")[d$type],pch = 19,box = FALSE,main = "Linear Discriminant Functions", xlab = "LDA1", ylab = "LDA2", zlab = "LDA3")
+addgrids3d(d$LDA1,d$LDA2,d$LDA3, grid = c("xy", "xz", "yz"))
 
+par(mfrow=c(1,2))
 library(klaR)
 drawparti(grouping = d$type, x = d$LDA1, y = d$LDA2, xlab = "LDA1", ylab = "LDA2")
 drawparti(grouping = d$type, x = d$LDA2, y = d$LDA3, xlab = "LDA2", ylab = "LDA3")
@@ -256,7 +260,6 @@ drawparti(grouping = d$type, x = d$LDA2, y = d$LDA3, xlab = "LDA2", ylab = "LDA3
 ```
 
 ```{r, echo=FALSE}
-par(mfrow=c(1,1))
 plot(m, dimen=1, type="both") # m is the fit from lda 
 ```
   
@@ -264,7 +267,7 @@ plot(m, dimen=1, type="both") # m is the fit from lda
 ```{r cdv, echo=FALSE,warning=FALSE,message=FALSE}
 # MANOVA follow up
 library(tables)
-m <- lm(cbind(nb2, nb4, nb8, nb16, nb32, nb64, age) ~ type, d)
+m <- lm(cbind(nb0, nb2, nb4, nb8, nb16, nb32, nb64) ~ type, d)
 #etasq(m %>% manova)
 #par(mfrow=c(1,1))
 #heplot(m,variables =)
@@ -341,8 +344,9 @@ plot(xyplot(cbind(response, pred2)~fts | type, data = d, panel=pfun, layout=c(2,
 
 # ANOVA  
 Is accuracy in the response given by the class belonging and gender?  
-```{r anova, echo=FALSE,message=FALSE, warning=FALSE}
+```{r anova, echo=TRUE,message=FALSE, warning=FALSE}
 mod1 <- aov(accuracy[,1]~factor(cases$class)+factor(cases$gender))
+summary(mod1)
 TukeyHSD(mod1)
 ```
 

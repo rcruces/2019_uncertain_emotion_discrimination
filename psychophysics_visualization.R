@@ -2,7 +2,7 @@
 library(gplots)
 
 # Set path
-home="/misc/ernst/rcruces/"
+home="/home/rr/"
 source(paste0(home,"git_here/R-plots/R-colors/colormaps_functions.R"))
 setwd(paste0(home,"git_here/2018_music_psychophysics"))
 
@@ -30,11 +30,11 @@ calAccu <- function(df){
 
 # Heatmap
 accuracy <- calAccu(result)
-colG<-c("lightskyblue","deepskyblue","dodgerblue2","dodgerblue4","navy","red","firebrick2","firebrick3","firebrick","firebrick4")
+colG<-c("navy","dodgerblue4","dodgerblue2","deepskyblue","lightskyblue","red","firebrick2","firebrick3","firebrick","firebrick4")
 col.map <- optim.color(accuracy,colG)
-heatmap.2(accuracy,Colv=FALSE,main= "Fine Structure Accuracy",
+heatmap.2(accuracy,Colv=FALSE,Rowv = FALSE,main= "Fine Structure Accuracy",
           density.info="histogram",
-          dendrogram='row',
+          dendrogram='none',
           trace="none",
           tracecol="white",
           key.title = "Discriminability",     
@@ -42,10 +42,13 @@ heatmap.2(accuracy,Colv=FALSE,main= "Fine Structure Accuracy",
           breaks = col.map$palette.breaks,
           srtCol=1,  
           RowSideColors = c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")[cases$class])
+
+# --------- HAPPY --------- #
 j=1
 Col=c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")
 for (i in levels(cases$class)) {
   indx <- which(cases$class==i)
+  svg(paste0("./tmp_no_git/",i,"_fst-HAPPY.svg"),width=7,height=7)
   heatmap.2(calAccu(hap)[indx,],Colv=FALSE,main= paste(i,"fst-HAP"),
             density.info="histogram",Rowv = TRUE,
             dendrogram='row',
@@ -56,9 +59,29 @@ for (i in levels(cases$class)) {
             breaks = col.map$palette.breaks,
             srtCol=1,  
             RowSideColors = rep(Col[j],length(indx)))
+  dev.off()
   j=j+1
 }
 
+# --------- SAD --------- #
+j=1
+Col=c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")
+for (i in levels(cases$class)) {
+  indx <- which(cases$class==i)
+  svg(paste0("./tmp_no_git/",i,"_fst-SAD.svg"),width=7,height=7)
+  heatmap.2(calAccu(sad)[indx,],Colv=FALSE,main= paste(i,"fst-SAD"),
+            density.info="histogram",Rowv = TRUE,
+            dendrogram='row',
+            trace="row",
+            tracecol=NA,
+            key.title = "Discriminability",     
+            col    = col.map$color.palette,   # Colormap
+            breaks = col.map$palette.breaks,
+            srtCol=1,  
+            RowSideColors = rep(Col[j],length(indx)))
+  dev.off()
+  j=j+1
+}
 
 # -------------------------------------------------------------------------------------------------------------------------- #
 # Happy vs Sad \  Female vs Men
@@ -81,34 +104,33 @@ blank.plot <- function (X,lab,Main) {
   Ax.Col="black"
   Main <- as.character(Main)
   plot(X,ylim=c(0,1),xlim = c(0,length(X)+1),pch=19,ylab="score",main=Main,col=NA,xaxt='n',bty='n',xlab="",axes = FALSE,
-       las=1,col.axis=Ax.Col,col.lab=Ax.Col,col.main=Ax.Col,cex.axis=1.2,cex=seq(0.5,1.5,length.out = 35),cex.main=3)
+       las=1,col.axis=Ax.Col,col.lab=Ax.Col,col.main=Ax.Col,cex.axis=1.2,cex=seq(0.5,1.5,length.out = 35),cex.main=2)
   polygon(c(0,0,8,8,0),c(0,1,1,0,0),col="gray85",border = NA)
   abline(h=seq(0,1,0.2),lty=1,col="white")
   axis(1, at=1:7, col.axis=Ax.Col,labels=lab, lty=1, col=Ax.Col, las=1,lwd=3,cex.axis=1,col.lab=Ax.Col)
   axis(2, at=seq(0,1,0.2), labels=seq(0,1,0.2), lty=1, col.axis=Ax.Col,las=1,lwd=3,cex.axis=1.2,col.lab=Ax.Col,col=Ax.Col)
 }
-par(mfrow=c(1,4))
-x <- apply(accuracy[cases$class == "poor",],2,mean)
+lines.plot <- function(y,Col,Tilte) {
+  x <- apply(y,2,mean)
+  blank.plot(x,lab=colnames(accuracy),Main = Tilte)
+  apply(y,1, function(x) lines(x,col=Col,lwd=0.5))
+  lines(x,col=Col,lwd=2.5)
+  points(x,bg=Col,lwd=2,cex=1.5,pch=21,col="white")
+  
+}
+par(mfrow=c(4,2))
+# FEMALE PERFORMANCE
+lines.plot(accuracy[cases$class == "poor" & cases$gender=="M",],"mediumpurple", "Poor Male")
+lines.plot(accuracy[cases$class == "poor" & cases$gender=="F",],"mediumpurple", "Poor Female")
+# MALE PERFORMANCE
+lines.plot(accuracy[cases$class == "best" & cases$gender=="M",],"mediumpurple4", "Best Male")
+lines.plot(accuracy[cases$class == "best" & cases$gender=="F",],"mediumpurple4", "Best Female")
 # HIGH PERFORMANCE
-blank.plot(x,lab=colnames(accuracy),Main = "high")
-apply(accuracy[cases$class == "high",],1, function(x) lines(x,col="darkolivegreen",lwd=0.5))
-lines(apply(accuracy[cases$class == "high",],2,mean),col="darkolivegreen",lwd=2.5)
-points(apply(accuracy[cases$class == "high",],2,mean),bg="darkolivegreen",lwd=2,cex=2,pch=21,col="white")
+lines.plot(accuracy[cases$class == "high" & cases$gender=="M",],"darkolivegreen", "High Male")
+lines.plot(accuracy[cases$class == "high" & cases$gender=="F",],"darkolivegreen", "High Female")
 # LOW PERFORMANCE
-blank.plot(x,lab=colnames(accuracy),Main = "low")
-apply(accuracy[cases$class == "low",],1, function(x) lines(x,col="darkolivegreen3",lwd=0.5))
-lines(apply(accuracy[cases$class == "low",],2,mean),col="darkolivegreen3",lwd=2.5)
-points(apply(accuracy[cases$class == "low",],2,mean),bg="darkolivegreen3",lwd=2,cex=2,pch=21,col="white")
-# BEST PERFORMANCE
-blank.plot(x,lab=colnames(accuracy),Main = "best")
-apply(accuracy[cases$class == "best",],1, function(x) lines(x,col="mediumpurple4",lwd=0.5))
-lines(apply(accuracy[cases$class == "best",],2,mean),col="mediumpurple4",lwd=2.5)
-points(apply(accuracy[cases$class == "best",],2,mean),bg="mediumpurple4",lwd=2,cex=1.5,pch=21,col="white")
-# POOR PERFORMANCE
-blank.plot(x,lab=colnames(accuracy),Main = "poor")
-apply(accuracy[cases$class == "poor",],1, function(x) lines(x,col="mediumpurple",lwd=0.5))
-lines(x,col="mediumpurple",lwd=2.5)
-points(x,bg="mediumpurple",lwd=2,cex=1.5,pch=21,col="white")
+lines.plot(accuracy[cases$class == "low" & cases$gender=="M",],"darkolivegreen3", "Low Male")
+lines.plot(accuracy[cases$class == "low" & cases$gender=="F",],"darkolivegreen3", "Low Female")
 
 # ----------------------------------------------------------------------------------- #
 # LINEAR MIXED EFFECTS MODEL
@@ -159,6 +181,7 @@ plot(xyplot(cbind(response, pred2)~fts | type, data = d, panel=pfun, layout=c(2,
 # ----------------------------------------------------------------------------------- #
 #### ANOVA Comparisons #### 
 mod1 <- aov(accuracy[,1]~factor(cases$class)+factor(cases$gender))
+summary(mod1)
 TukeyHSD(mod1)
 
 # ----------------------------------------------------------------------------------- #
@@ -175,31 +198,22 @@ library(dplyr)
 library(ggplot2)
 
 # Linear Discriminant model MASS library
-m <- lda(type~+nb2+nb4+nb8+nb16+nb32+nb64+age, d)
+m <- lda(type~nb0+nb2+nb4+nb8+nb16+nb32+nb64+age, d)
 # Obtains the predictor from the LDA to an object
 p <- predict(m)
-
 # Accuracy of prediction
 freqtable <- table(p$class, d$type)
 # Percent correct of each category of G
 diag(prop.table(freqtable))
 rownames(freqtable) <- paste0("Predicted ", d$type %>% levels)
 freqtable %>% addmargins %>% pander("Observed vs. Predicted Frequencies")
-
 # Total percent correct
 sum(diag(prop.table(freqtable)))
-
 # Proportions
 prop.table(freqtable) %>% addmargins %>% pander("Proportions")
-
-# LDA plot, Only first 2 used
-plot(m, abbrev=1,dimen = 3)
-
-<<<<<<< HEAD
+# LDA, 3  used: 
+#plot(m, abbrev=1,dimen = 3)
 # LDA to variables
-=======
-# Gets the predicted values for each discriminant function
->>>>>>> 153206cb29502e024310e72f53e7f386e72f3302
 d$LDA1 <- p$x[,1]
 d$LDA2 <- p$x[,2]
 d$LDA3 <- p$x[,3]
@@ -226,14 +240,13 @@ ggplot(d, aes(LDA1, LDA2, color = type)) +
   theme(legend.position = "none") +
   coord_equal()
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 153206cb29502e024310e72f53e7f386e72f3302
 # PLots the First Dimension
-par(mfrow=c(1,2))
-plot(d$LDA1,d$LDA2,col="white",bg=c("red","green","blue","orange")[d$type],pch=21,cex=2.5)
-#plot(d$LDA2,d$LDA3,col=c("red","green","blue","orange")[df$type])
+library(scatterplot3d)
+source('http://www.sthda.com/sthda/RDoc/functions/addgrids3d.r')
+scatterplot3d(d$LDA1,d$LDA2,d$LDA3,color = c("red","green","blue","orange")[d$type],pch = 19,box = FALSE,
+              main = "Linear Discriminant Functions", xlab = "LDA1", ylab = "LDA2", zlab = "LDA3")
+addgrids3d(d$LDA1,d$LDA2,d$LDA3, grid = c("xy", "xz", "yz"))
 
 library(klaR)
 drawparti(grouping = d$type, x = d$LDA1, y = d$LDA2, xlab = "LDA1", ylab = "LDA2")
@@ -248,7 +261,7 @@ pairs(d[c("nb0","nb2","nb4","nb8","nb16","nb32","nb64")], main="LDA Accuracy", p
 
 # MANOVA follow up
 library(tables)
-m <- lm(cbind(nb2, nb4, nb8, nb16, nb32, nb64, age) ~ type, d)
+m <- lm(cbind(nb0, nb2, nb4, nb8, nb16, nb32, nb64) ~ type, d)
 m %>% manovaTable
 etasq(m %>% manova)
 
@@ -271,6 +284,5 @@ par(xpd = T, bty = "n",pty = "s")
 heplot(cca)
 
 myColors <- hsv((c(0,80,160,240) + 80)/360,s = 0.8,v = 0.8,0.7)
-cca %>% plot(col = myColors, pch = rep(16,4), bty = "n", xpd = T)
 plot(cca, col = myColors, pch = rep(16,4), bty = "n", xpd = T,var.col = "red4")
 
