@@ -190,7 +190,7 @@ lines.plot(accuracy[cases$class == "low" & cases$gender=="F",],"darkolivegreen3"
 ```
 
 # Linear Discriminant Analysis  
-I ran the LDA analysis again using nb0 aand without the age.  
+I ran the LDA analysis again using nb0 and without the age.  
 $Group~nb0+nb2+nb4+nb8+nb16+nb32+nb64$  
 ```{r lda, echo=FALSE,warning=FALSE,message=FALSE}
 #### LINEAR DISCRIMINANT ANALYSIS ####
