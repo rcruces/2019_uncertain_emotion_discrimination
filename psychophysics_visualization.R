@@ -44,12 +44,15 @@ heatmap.2(accuracy,Colv=FALSE,Rowv = FALSE,main= "Fine Structure Accuracy",
           RowSideColors = c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")[cases$class])
 
 # --------- HAPPY --------- #
+acu.sad <- cbind(calAccu(sad)[,1],calAccu(hap)[,2:7])
+acu.hap <- cbind(calAccu(hap)[,1],calAccu(sad)[,2:7])
+
 j=1
 Col=c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")
 for (i in levels(cases$class)) {
   indx <- which(cases$class==i)
   svg(paste0("./tmp_no_git/",i,"_fst-HAPPY.svg"),width=7,height=7)
-  heatmap.2(calAccu(hap)[indx,],Colv=FALSE,main= paste(i,"fst-HAP"),
+  heatmap.2(acu.hap[indx,],Colv=FALSE,main= paste(i,"fst-HAP"),
             density.info="histogram",Rowv = TRUE,
             dendrogram='row',
             trace="row",
@@ -69,7 +72,7 @@ Col=c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")
 for (i in levels(cases$class)) {
   indx <- which(cases$class==i)
   svg(paste0("./tmp_no_git/",i,"_fst-SAD.svg"),width=7,height=7)
-  heatmap.2(calAccu(sad)[indx,],Colv=FALSE,main= paste(i,"fst-SAD"),
+  heatmap.2(acu.sad[indx,],Colv=FALSE,main= paste(i,"fst-SAD"),
             density.info="histogram",Rowv = TRUE,
             dendrogram='row',
             trace="row",
@@ -88,11 +91,11 @@ for (i in levels(cases$class)) {
 # -------------------------------------------------------------------------------------------------------------------------- #
 library(corrplot)
 indx <- which(cases$gender=="M")
-M.sad <- calAccu(sad)[indx,2:7]
-M.hap <- calAccu(hap)[indx,2:7]
+M.sad <- acu.sad[indx,2:7]
+M.hap <- acu.hap[indx,2:7]
 indx <- which(cases$gender=="F")
-F.sad <- calAccu(sad)[indx,2:7]
-F.hap <- calAccu(hap)[indx,2:7]
+F.sad <- acu.sad[indx,2:7]
+F.hap <- acu.hap[indx,2:7]
 par(mfrow=c(2,2))
 corrplot(cor(M.hap,M.hap)-cor(F.sad,F.sad), title = "Males Happy",method = "square",diag = FALSE)
 corrplot(cor(F.sad,F.sad), title = "Female Happy",method = "square",diag = FALSE)
@@ -137,7 +140,7 @@ lines.plot(accuracy[cases$class == "low" & cases$gender=="F",],"darkolivegreen3"
 library(nlme) #Linear mixed effects models
 library(lattice) # plots
 d <- data.frame(accuracy)
-colnames(d) <- c(0,2,4,8,16,32,64)
+colnames(d) <- c(2,4,8,16,32,64)
 d$type <- cases$class
 d$id <- rownames(d)
 # Selects from 2 to 64
@@ -186,6 +189,7 @@ TukeyHSD(mod1)
 
 # ----------------------------------------------------------------------------------- #
 #### LINEAR DISCRIMINANT ANALYSIS ####
+# https://rstudio-pubs-static.s3.amazonaws.com/35817_2552e05f1d4e4db8ba87b334101a43da.html
 # Data Reshape
 d <- data.frame(cbind(cases$class,cases$age,cases$music.yrs,cases$gender,accuracy)) 
 colnames(d) <- c("type","age","music.yrs","gender","nb0","nb2","nb4","nb8","nb16","nb32","nb64")
@@ -198,7 +202,7 @@ library(dplyr)
 library(ggplot2)
 
 # Linear Discriminant model MASS library
-m <- lda(type~nb0+nb2+nb4+nb8+nb16+nb32+nb64+age, d)
+m <- lda(type~nb0+nb2+nb4+nb8+nb16+nb32+nb64, d)
 # Obtains the predictor from the LDA to an object
 p <- predict(m)
 # Accuracy of prediction
@@ -217,7 +221,7 @@ prop.table(freqtable) %>% addmargins %>% pander("Proportions")
 d$LDA1 <- p$x[,1]
 d$LDA2 <- p$x[,2]
 d$LDA3 <- p$x[,3]
-par(mfrow=c(1,3))
+
 ggplot(d, aes(LDA1, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
 ggplot(d, aes(LDA2, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
 ggplot(d, aes(LDA3, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top")
@@ -225,7 +229,7 @@ ggplot(d, aes(LDA3, fill = type)) + geom_density(alpha = 0.5, color = NA) + them
 
 gMeans <- d %>% group_by(type) %>% select(LDA1,LDA2,LDA3) %>%  summarise_each(funs(mean)) 
 gMeans %>% pander
-
+# PLot the LDA1 vs LDA2 with color per group
 ggplot(d, aes(LDA1, LDA2, color = type)) + 
   geom_point(alpha = 0.5) + 
   geom_text(data = gMeans, 
@@ -248,7 +252,9 @@ scatterplot3d(d$LDA1,d$LDA2,d$LDA3,color = c("red","green","blue","orange")[d$ty
               main = "Linear Discriminant Functions", xlab = "LDA1", ylab = "LDA2", zlab = "LDA3")
 addgrids3d(d$LDA1,d$LDA2,d$LDA3, grid = c("xy", "xz", "yz"))
 
+# Exploratory Graph for LDA or QDA
 library(klaR)
+partimat(type~nb0+nb2+nb4+nb8+nb16+nb32+nb64, data=d,method="lda") 
 drawparti(grouping = d$type, x = d$LDA1, y = d$LDA2, xlab = "LDA1", ylab = "LDA2")
 #drawparti(grouping = d$type, x = d$LDA1, y = d$LDA3, xlab = "LDA1", ylab = "LDA3")
 # Panels of histograms and overlayed density plots

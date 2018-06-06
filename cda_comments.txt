@@ -1,0 +1,48 @@
+Canonical Discriminant Analysis
+Two generalized canonical discriminant analysis was compute using the multivariate linear model Group~nb0+nb2+nb4+nb8+nb16+nb32+nb64 to obtain the canonical scores and vectors, one for HAPPY and the other for SAD. It represents a transformation of the original variables in the scpace of maximal differences for the group. 
+THe biplot shows the canonical scores for the groups defined by the term as points and the canonical structure coefficients as vectors from th eorigin.
+
+ Standardized beta coefficients are given for each variable in each discriminant (canonical) function, and the larger the standardized coefficient, the greater is the contribution of the respective variable to the discrimination between groups. However, these coefficients do not tell us between which of the groups the respective functions discriminate.
+
+Table: Standardized Coefficients: Sad
+------------------------------------------
+  &nbsp;      Can1       Can2      Can3   
+---------- ---------- ---------- ---------
+ **nb0**     0.6264     0.7113    -0.3907 
+
+ **nb2**    -0.1806     0.3608    0.1146  
+
+ **nb4**     0.507     -0.6772    -0.4067 
+
+ **nb8**    -0.5025     0.3103    -0.6578 
+
+ **nb16**   -0.2266    -0.4923    -0.2479 
+
+ **nb32**   -0.05239    0.7701     1.224  
+
+ **nb64**   -0.7641    -0.08169    -0.24  
+------------------------------------------
+
+
+Table: Standardized Coefficients Happy
+------------------------------------------
+  &nbsp;      Can1       Can2      Can3   
+---------- ---------- ---------- ---------
+ **nb0**     -1.011    -0.05111   0.04974 
+
+ **nb2**    -0.01097   -0.1844    0.3217  
+
+ **nb4**     0.2952    -0.4591    -0.4602 
+
+ **nb8**    -0.08152    0.8909     1.472  
+
+ **nb16**   -0.2719     0.5762    -1.304  
+
+ **nb32**   0.06616    -0.4042    -0.1513 
+
+ **nb64**    0.4193     0.4013    -0.2076 
+------------------------------------------
+
+The discriminant function coefficients denote the unique contribution of each variable to the discriminant function, while the structure coefficients denote the simple correlations between the variables and the functions
+
+
