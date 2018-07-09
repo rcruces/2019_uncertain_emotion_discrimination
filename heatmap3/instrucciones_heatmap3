@@ -1,0 +1,25 @@
+Hi raul, 
+we here in the states are worried about your penis. if it starts to look like it will fall off. first we suggest ducktape! then go to a doctor quickly surgery is in order.
+
+
+heatmap
+
+Volume is stats from - column 40 to 175
+when ending in "_R" this means right hemisphere side
+when ending in "_L" this means left hemisphere side.
+with no ending means irrelevant for side analysis. (discussed further down)
+if you want you can organize by left and by right side or colorcode left in winter and right in summer in the same heatmap. that would be cool.
+
+class - put as "Side" meaning left or right hearing loss
+category - put as "Sex" meaning M or F.
+Below if you have ability put "Scan Age" column 4 and "Audio Age" column 5.
+if you can put this as colorbar with greater color older age and lesser color younger.
+so you have 4 color bars on that axis.
+
+For above we have the audiometric values  from column 6 through 39.
+
+let me know if you have any questions. these csv formats are the newest. use them.
+
+
+
+please send comments on our article and i will fix as soon as possible.
