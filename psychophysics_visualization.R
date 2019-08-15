@@ -1,9 +1,13 @@
 # Libraries
 library(gplots)
+library(RCurl)
 
-# Set path
-home="/home/rr/"
-source(paste0(home,"git_here/R-plots/R-colors/colormaps_functions.R"))
+# Get functionf from source: github.com/rcruces/R-plots/master/R-colors/colormaps_functions.R
+script <- getURL("https://raw.githubusercontent.com/rcruces/R-plots/master/R-colors/colormaps_functions.R",ssl.verifypeer = FALSE)
+eval(parse(text = script))
+
+# Set path, change this to your home/githubDirectory path
+home="~/"
 setwd(paste0(home,"git_here/2018_music_psychophysics"))
 
 # Read the Subjects Information
@@ -126,8 +130,8 @@ par(mfrow=c(4,2))
 lines.plot(accuracy[cases$class == "poor" & cases$gender=="M",],"mediumpurple", "Poor Male")
 lines.plot(accuracy[cases$class == "poor" & cases$gender=="F",],"mediumpurple", "Poor Female")
 # MALE PERFORMANCE
-lines.plot(accuracy[cases$class == "best" & cases$gender=="M",],"mediumpurple4", "Best Male")
-lines.plot(accuracy[cases$class == "best" & cases$gender=="F",],"mediumpurple4", "Best Female")
+lines.plot(accuracy[cases$class == "best" & cases$gender=="M",],"mediumpurple4", "Good Male")
+lines.plot(accuracy[cases$class == "best" & cases$gender=="F",],"mediumpurple4", "Good Female")
 # HIGH PERFORMANCE
 lines.plot(accuracy[cases$class == "high" & cases$gender=="M",],"darkolivegreen", "High Male")
 lines.plot(accuracy[cases$class == "high" & cases$gender=="F",],"darkolivegreen", "High Female")

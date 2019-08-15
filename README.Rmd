@@ -1,0 +1,413 @@
+---
+title: "Uncertain emotion discrimination differences between musicians and nonmusicians is determined by fine structure association: Hilbert transform psychophysics"
+date: "Updated on 15 August, 2019"
+output: 
+  md_document:
+    variant: markdown_github
+    toc: true    # table of content true
+    toc_depth: 2 # upto three depths of headings (specified by #, ## and ###)
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Authors:** Francis A.M. Mannoa,b,†, Raul R. Cruces, Condon Laub,†, Fernando A. Barriosc,†  
+**Contact:** Francis.Manno@nyu.edu, fbarrios@unam.mx, condon.lau@cityu.edu.hk  
+  
+**OSF:** https://osf.io/8ws7a  
+**Keywords:** emotion; psychophysics; modulation; fine structure; envelope; frequency; amplitude  
+  
+# Abstract
+We perceive musical sound as a complex phenomenon, which is known to induce an emotional response in humans. The cues used to perceive emotion in music have not been unequivocally elucidated. Here, we sought to identify the attributes of sound that confer an emotion to music and determine if professional musicians have different musical emotion perception than nonmusicians. The objective was to determine which sound cues are used to resolve emotional signals. Happy or sad classical music excerpts modified in fine structure or envelope conveyed different degrees of emotional certainty. The psychophysical emotional response of the modified excerpts was measure based on the originals. Certainty was determined by identification of the emotional characteristic presented during a forced-choice discrimination task. Participants were categorized as good or poor performers (n = 32, age 21.17 ± 2.63 SD) and in a separate group as musicians in the first or last year of music education at a conservatory (n = 32, age 21.97 ± 2.42). We found that temporal fine structure information is essential for correct emotional identification. Non-musically educated individuals used less fine structure information to discriminate emotion in music compared with musically educated individuals. The present psychophysical experiments revealed what cues are used to resolve emotional signals and how they differ between nonmusicians and musically educated individuals.  
+
+# Code and Methods  
+The code for **figure 2** and **figure 4** can be found in `Final_figures.R`. 
+
+## R 3.4.4, required packages
+```{r packages, echo=TRUE,message=FALSE, warning=FALSE}
+library(gplots)
+library(gridExtra)
+library(MASS)
+library(pander)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(RCurl)
+library(scatterplot3d)
+library(klaR)
+library(pander)
+library(candisc)
+```
+
+# Group Heatmaps
+This was created calculating the accuracy of each subject per stimuli. First, stimuli where binarized based in the answer of **Fine structure emotion**, with 1 if is correct and 0 when wrong. The total was divided by the total amount of stimuli or each category (nb0...nb64).  
+
+## Accuracy for both emotions: All subjects
+```{r Heatmap Accuracy, echo=FALSE, warning=FALSE, message=FALSE}
+source('http://www.sthda.com/sthda/RDoc/functions/addgrids3d.r')
+# plot grid on a 3d scatterplot
+# Get functions from source: github.com/rcruces/R-plots/master/R-colors/colormaps_functions.R
+script <- getURL("https://raw.githubusercontent.com/rcruces/R-plots/master/R-colors/colormaps_functions.R",ssl.verifypeer = FALSE)
+eval(parse(text = script)); rm(script)
+
+# Set path, change this to your home/githubDirectory path
+home="~/"
+setwd(paste0(home,"git_here/2019_uncertain_emotion_detection"))
+
+# Read the Subjects Information
+cases <- read.csv("database/cases.csv")
+
+# Reads the subjects Responses
+result <- read.csv("database/cases_results.csv")
+
+# Slices Happy and Sad
+hap <- result[result$emo=="h",]
+sad <- result[result$emo=="s",] 
+
+# Creates a matrix with the Percentage of Correct Responses per FINE STRUCTURE stimuli
+calAccu <- function(df){
+  accuracy <- c()
+  for (i in unique(df$fts)) {
+    sub.cases <- df[df$fts==i,]
+    X <- apply(sub.cases[,7:70],2,function(x) sum(ifelse(sub.cases$emo.fts == x, 1,0))/length(x) )
+    accuracy <- cbind(accuracy,X)
+  }
+  colnames(accuracy) <- unique(df$fts)
+  return(as.matrix(accuracy))  
+}
+# Color-palette
+colG<-c("navy","dodgerblue4","dodgerblue2","deepskyblue","lightskyblue","red","firebrick2","firebrick3","firebrick","firebrick4")
+# Color-map
+col.map <- optim.color(calAccu(result),colG)
+# Heatmap of all subjects, Clustered by Group
+heatmap.2(calAccu(result),Colv=FALSE,main= "Fine Structure Accuracy",
+          density.info="histogram",
+          dendrogram='row',
+          trace="none",
+          tracecol="white",
+          key.title = "Discriminability",     
+          col    = col.map$color.palette,   # Colormap
+          breaks = col.map$palette.breaks,
+          srtCol=1,  
+          RowSideColors = c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")[cases$class])
+```
+  
+
+
+## Fine Structure Accuracy by Gender  
+```{r heatmap.gender, echo=FALSE, message=FALSE, warning=FALSE, fig.width=4, fig.height= 4}
+# FUNCTION for heatmap plotting
+hmap <- function(Mtx, Title){
+heatmap.2(Mtx,Colv=FALSE,main= Title,
+            density.info="histogram",Rowv = TRUE,
+            dendrogram='row',
+            trace="row",
+            tracecol=NA,
+            key.title = "Discriminability",     
+            col    = col.map$color.palette,   # Colormap
+            breaks = col.map$palette.breaks,
+            srtCol=1)}
+
+library(corrplot)
+indx <- which(cases$gender=="M")
+M.sad <- calAccu(hap)[indx,2:7]
+M.hap <- calAccu(sad)[indx,2:7]
+indx <- which(cases$gender=="F")
+F.sad <- calAccu(hap)[indx,2:7]
+F.hap <- calAccu(sad)[indx,2:7]
+# Heatmap: Happy-Sad
+hmap(M.sad,"Males: Sad")
+hmap(F.sad,"Females: Sad")
+hmap(M.hap,"Males: Happy")
+hmap(F.hap,"Females: Happy")
+```
+
+# Figure 2. Accuracy and discriminability concerning Happy and Sad   
+```{r fig2, echo=FALSE, message=FALSE, warning=FALSE, fig.width=4}
+acu.sad <- cbind(calAccu(sad)[,1],calAccu(hap)[,2:7])
+acu.hap <- cbind(calAccu(hap)[,1],calAccu(sad)[,2:7])
+heatmap.2(acu.hap,Colv=FALSE,Rowv = FALSE,main= "Happy Fine structure",
+          density.info="histogram",
+          dendrogram='none',
+          trace="none",
+          tracecol="white",
+          key.title = "Discriminability",     
+          col    = col.map$color.palette,   # Colormap
+          breaks = col.map$palette.breaks,
+          srtCol=1,  
+          RowSideColors = c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")[cases$class])
+
+heatmap.2(acu.sad,Colv=FALSE,Rowv = FALSE,main= "Sad Fine Structure",
+          density.info="histogram",
+          dendrogram='none',
+          trace="none",
+          tracecol="white",
+          key.title = "Discriminability",     
+          col    = col.map$color.palette,   # Colormap
+          breaks = col.map$palette.breaks,
+          srtCol=1,  
+          RowSideColors = c("mediumpurple4","darkolivegreen","darkolivegreen3","mediumpurple")[cases$class])
+
+```
+  
+  
+```{r fig2.hist, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2.5}
+par(mfrow=c(1,2))
+hist(acu.hap,ylim=c(0,160),breaks = 10,main="Happy Discriminability", col=col.map$color.palette[c(1,1,1,2,3,4,5,6,7,7)],border = "white")
+hist(acu.sad,ylim=c(0,160),breaks = 10,main="Sad Discriminability", col = col.map$color.palette[c(1,1,1,2,3,4,5,6,7,7)],border = "white")
+
+```
+  
+# Accuracy calculaded by subjects and group  
+  
+```{r Lines-dots, echo=FALSE, warning=FALSE, message=FALSE}
+accuracy <- calAccu(result)
+blank.plot <- function (X,lab,Main) {
+  Ax.Col="black"
+  Main <- as.character(Main)
+  plot(X,ylim=c(0,1),xlim = c(0,length(X)+1),pch=19,ylab="score",main=Main,col=NA,xaxt='n',bty='n',xlab="",axes = FALSE,
+       las=1,col.axis=Ax.Col,col.lab=Ax.Col,col.main=Ax.Col,cex.axis=1.2,cex=seq(0.5,1.5,length.out = 35),cex.main=2)
+  polygon(c(0,0,8,8,0),c(0,1,1,0,0),col="gray85",border = NA)
+  abline(h=seq(0,1,0.2),lty=1,col="white")
+  axis(1, at=1:7, col.axis=Ax.Col,labels=lab, lty=1, col=Ax.Col, las=1,lwd=3,cex.axis=1,col.lab=Ax.Col)
+  axis(2, at=seq(0,1,0.2), labels=seq(0,1,0.2), lty=1, col.axis=Ax.Col,las=1,lwd=3,cex.axis=1.2,col.lab=Ax.Col,col=Ax.Col)
+}
+lines.plot <- function(y,Col,Tilte) {
+  x <- apply(y,2,mean)
+  blank.plot(x,lab=colnames(accuracy),Main = Tilte)
+  apply(y,1, function(x) lines(x,col=Col,lwd=0.5))
+  lines(x,col=Col,lwd=2.5)
+  points(x,bg=Col,lwd=2,cex=1.5,pch=21,col="white")
+  
+}
+par(mfrow=c(2,2))
+# FEMALE PERFORMANCE
+lines.plot(accuracy[cases$class == "poor" & cases$gender=="M",],"mediumpurple", "Poor Male")
+lines.plot(accuracy[cases$class == "poor" & cases$gender=="F",],"mediumpurple", "Poor Female")
+# MALE PERFORMANCE
+lines.plot(accuracy[cases$class == "best" & cases$gender=="M",],"mediumpurple4", "Good Male")
+lines.plot(accuracy[cases$class == "best" & cases$gender=="F",],"mediumpurple4", "Good Female")
+# HIGH PERFORMANCE
+lines.plot(accuracy[cases$class == "high" & cases$gender=="M",],"darkolivegreen", "High Male")
+lines.plot(accuracy[cases$class == "high" & cases$gender=="F",],"darkolivegreen", "High Female")
+# LOW PERFORMANCE
+lines.plot(accuracy[cases$class == "low" & cases$gender=="M",],"darkolivegreen3", "Low Male")
+lines.plot(accuracy[cases$class == "low" & cases$gender=="F",],"darkolivegreen3", "Low Female")
+```
+  
+\clearpage
+  
+## ANOVA: Comparisons between groups  
+Is accuracy in the response given by the class belonging and gender?  
+```{r anova, echo=FALSE,message=FALSE, warning=FALSE}
+require(pander)
+mod1 <- aov(accuracy[,1]~factor(cases$class)+factor(cases$gender))
+pander(summary(mod1),caption = "ANOVA, accuracy by class")
+pander(TukeyHSD(mod1),caption = "ANOVA post hoc, accuracy by class")
+```
+  
+\clearpage
+  
+# Linear Discriminant Analysis: Happy  
+ 
+$Group\~nb0+nb2+nb4+nb8+nb16+nb32+nb64$  
+
+```{r lda, echo=FALSE,warning=FALSE,message=FALSE}
+# Data Reshape
+d.happy <- data.frame(cbind(cases$class,cases$age,cases$music.yrs,cases$gender,acu.hap)) 
+colnames(d.happy) <- c("type","age","music.yrs","gender","nb0","nb2","nb4","nb8","nb16","nb32","nb64")
+d.happy$type <- cases$class
+d.happy$id <- rownames(d.happy)
+
+# Linear Discriminant model MASS library
+m.happy <- lda(type~nb0+nb2+nb4+nb8+nb16+nb32+nb64, d.happy)
+# Obtains the predictor from the LDA to an object
+p.happy <- predict(m.happy)
+# Accuracy of prediction
+freqtable <- table(p.happy$class, d.happy$type)
+# Percent correct of each category of G
+pander(diag(prop.table(freqtable)),"Accuracy prediction: Happy")
+# Frecuency table
+pander("  \n  ")
+rownames(freqtable) <- paste0("Predicted ", d.happy$type %>% levels)
+freqtable %>% addmargins %>% pander("LDA happy: Observed vs. Predicted Frequencies")
+pander("  \n  ")
+
+# Total percent correct
+pander(paste("Happy total % correct:",sum(diag(prop.table(freqtable)))))
+pander("  \n  ")
+
+# Proportions
+prop.table(freqtable) %>% addmargins %>% pander("LDA sad: Observed vs. Predicted Proportions %")
+pander("  \n  ")
+
+# LDA to variables
+d.happy$LDA1 <- p.happy$x[,1]
+d.happy$LDA2 <- p.happy$x[,2]
+d.happy$LDA3 <- p.happy$x[,3]
+
+# Table
+gMeans <- d.happy %>% group_by(type) %>% select(LDA1,LDA2,LDA3) %>%  summarise_each(funs(mean)) 
+gMeans %>% pander("Happy: group means by LDA")
+pander("  \n  ")
+
+# Plot the LDA
+grid.arrange(
+ggplot(d.happy, aes(LDA1, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top"),
+ggplot(d.happy, aes(LDA2, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top"),
+ggplot(d.happy, aes(LDA3, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top"),
+# Plot the LDA1 vs LDA2 with color per group
+ggplot(d.happy, aes(LDA1, LDA2, color = type)) + 
+  geom_point(alpha = 0.5) + 
+  geom_text(data = gMeans, 
+            aes(label = type),
+            color = "black", 
+            vjust = 1.75) + 
+  geom_point(data = gMeans, 
+             aes(fill = type), 
+             size = 4, 
+             color = "black", 
+             pch = 21) + 
+  theme(legend.position = "none") +
+  coord_equal(),
+ncol=2, nrow = 2)
+```
+
+  
+```{r lda.happy, echo=FALSE,warning=FALSE,message=FALSE, fig.height=2.5}
+# Plots the discriminat functions
+par(mfrow=c(1,3))
+# scater plot of each subject by LDA value
+scatterplot3d(d.happy$LDA1,d.happy$LDA2,d.happy$LDA3,color = c("red","green","blue","orange")[d.happy$type],pch = 19,box = FALSE,main = "LDA Happy", xlab = "LDA1", ylab = "LDA2", zlab = "LDA3")
+addgrids3d(d.happy$LDA1,d.happy$LDA2,d.happy$LDA3, grid = c("xy", "xz", "yz"))
+# Linear discrimant functions
+drawparti(grouping = d.happy$type, x = d.happy$LDA1, y = d.happy$LDA2, xlab = "LDA1", ylab = "LDA2")
+drawparti(grouping = d.happy$type, x = d.happy$LDA2, y = d.happy$LDA3, xlab = "LDA2", ylab = "LDA3")
+```
+  
+\clearpage
+  
+## Linear Discriminant Analysis: Sad  
+```{r lda.sad, echo=FALSE,warning=FALSE,message=FALSE}  
+# Data Reshape
+d.sad <- data.frame(cbind(cases$class,cases$age,cases$music.yrs,cases$gender,acu.sad)) 
+colnames(d.sad) <- c("type","age","music.yrs","gender","nb0","nb2","nb4","nb8","nb16","nb32","nb64")
+d.sad$type <- cases$class
+d.sad$id <- rownames(d.sad)
+
+# Linear Discriminant model MASS library
+m.sad <- lda(type~nb0+nb2+nb4+nb8+nb16+nb32+nb64, d.sad)
+# Obtains the predictor from the LDA to an object
+p.sad <- predict(m.sad)
+# Accuracy of prediction
+freqtable <- table(p.sad$class, d.sad$type)
+# Percent correct of each category of G
+pander(diag(prop.table(freqtable)),"Accuracy prediction: Sad")
+pander("  \n  ")
+
+# Frecuency table
+rownames(freqtable) <- paste0("Predicted ", d.sad$type %>% levels)
+freqtable %>% addmargins %>% pander("LDA sad: Observed vs. Predicted Frequencies")
+pander("  \n  ")
+
+# Total percent correct
+pander(paste("Sad total % correct:",sum(diag(prop.table(freqtable)))))
+pander("  \n  ")
+
+# Proportions
+prop.table(freqtable) %>% addmargins %>% pander("LDA sad: Observed vs. Predicted Proportions %")
+pander("  \n  ")
+
+# LDA to variables
+d.sad$LDA1 <- p.sad$x[,1]
+d.sad$LDA2 <- p.sad$x[,2]
+d.sad$LDA3 <- p.sad$x[,3]
+
+# LDA table 
+gMeans <- d.sad %>% group_by(type) %>% select(LDA1,LDA2,LDA3) %>%  summarise_each(funs(mean)) 
+gMeans %>% pander("Happy: group means by LDA")
+pander("  \n  ")
+
+# PLot the LDA
+grid.arrange(
+ggplot(d.sad, aes(LDA1, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top"),
+ggplot(d.sad, aes(LDA2, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top"),
+ggplot(d.sad, aes(LDA3, fill = type)) + geom_density(alpha = 0.5, color = NA) + theme(legend.position = "top"),
+# Plot the LDA1 vs LDA2 with color per group
+ggplot(d.sad, aes(LDA1, LDA2, color = type)) + 
+  geom_point(alpha = 0.5) + 
+  geom_text(data = gMeans, 
+            aes(label = type),
+            color = "black", 
+            vjust = 1.75) + 
+  geom_point(data = gMeans, 
+             aes(fill = type), 
+             size = 4, 
+             color = "black", 
+             pch = 21) + 
+  theme(legend.position = "none") +
+  coord_equal(),
+ncol=2, nrow = 2)
+```
+  
+  
+```{r lda.sad.plots, echo=FALSE,warning=FALSE,message=FALSE, fig.height= 2.5}
+# Plots the discriminat functions
+par(mfrow=c(1,3))
+# scater plot of each subject by LDA value
+scatterplot3d(d.sad$LDA1,d.sad$LDA2,d.sad$LDA3,color = c("red","green","blue","orange")[d.happy$type],pch = 19,box = FALSE,main = "LDA Sad", xlab = "LDA1", ylab = "LDA2", zlab = "LDA3")
+addgrids3d(d.sad$LDA1,d.sad$LDA2,d.sad$LDA3, grid = c("xy", "xz", "yz"))
+# Linear discrimant functions
+drawparti(grouping = d.sad$type, x = d.sad$LDA1, y = d.sad$LDA2, xlab = "LDA1", ylab = "LDA2")
+drawparti(grouping = d.sad$type, x = d.sad$LDA2, y = d.sad$LDA3, xlab = "LDA2", ylab = "LDA3")
+```
+
+\clearpage
+
+## Figure 4. Cannonical Discriminant Analysis (CDA)
+```{r CDA, echo=FALSE,warning=FALSE,message=FALSE}  
+# Linear models for each emotion
+lm.sad   <- lm(cbind(nb0, nb2, nb4, nb8, nb16, nb32, nb64) ~ type, d.sad)
+lm.happy <- lm(cbind(nb0, nb2, nb4, nb8, nb16, nb32, nb64) ~ type, d.happy)
+
+# Canonical discriminant analysis
+cda.happy <- lm.happy %>% candisc 
+cda.sad <- lm.sad %>% candisc 
+```
+
+Two generalized canonical discriminant analysis was compute using the multivariate linear model:  
+$$Group~nb0+nb2+nb4+nb8+nb16+nb32+nb64$$  
+to obtain the canonical scores and vectors, one for HAPPY and the other for SAD. It represents a transformation of the original variables in the scpace of maximal differences for the group. 
+THe biplot shows the canonical scores for the groups defined by the term as points and the canonical structure coefficients as vectors from the origin.  
+  
+Standardized beta coefficients are given for each variable in each discriminant (canonical) function, and the larger the standardized coefficient, the greater is the contribution of the respective variable to the discrimination between groups. However, these coefficients do not tell us between which of the groups the respective functions discriminate.  
+
+**Happy standardized coefficients**  
+```{r CDA.happy, echo=FALSE,warning=FALSE,message=FALSE}  
+# Standardized coefficients of the CDA
+cda.happy$coeffs.std %>% pander("Happy CDA standardized coefficients")
+```
+
+  
+**Sad standardized coefficients**
+```{r CDA.sad, echo=FALSE,warning=FALSE,message=FALSE}  
+# Standardized coefficients of the CDA
+cda.sad$coeffs.std %>% pander("Sad CDA standardized coefficients")
+```
+
+  
+The discriminant function coefficients denote the unique contribution of each variable to the discriminant function, while the structure coefficients denote the simple correlations between the variables and the functions
+
+```{r CDA.res, echo=FALSE,warning=FALSE,message=FALSE, fig.height=3.5} 
+# Black BackGround Settings
+par(bg="black", col.lab="white", col.axis = 'white', col.main= "white", fg="white",mfrow=c(1,2))
+
+# FIGURE 4 - Canonical Discriminant Analysis
+myColors <- hsv((c(0,80,160,240) + 80)/360,s = 0.8,v = 0.8,0.7)
+plot(cda.happy, col = myColors, pch = rep(16,4), bty = "n", xpd = T,var.col = "red3",ylim=c(-5,5),xlim=c(-6,4), scale=5,main="Happy")
+plot(cda.sad, col = myColors, pch = rep(16,4), bty = "n", xpd = T,var.col = "red3",ylim=c(-5,5),xlim=c(-6,4), scale=5,main="Sad")
+```
+
+
