@@ -160,7 +160,7 @@ hist(acu.sad,ylim=c(0,160),breaks = 10,main="Sad Discriminability", col = col.ma
 
 ```
   
-# Accuracy calculaded by subjects and group  
+## Accuracy calculaded by subjects and group  
   
 ```{r Lines-dots, echo=FALSE, warning=FALSE, message=FALSE}
 accuracy <- calAccu(result)
@@ -289,7 +289,7 @@ drawparti(grouping = d.happy$type, x = d.happy$LDA2, y = d.happy$LDA3, xlab = "L
   
 \clearpage
   
-## Linear Discriminant Analysis: Sad  
+# Linear Discriminant Analysis: Sad  
 ```{r lda.sad, echo=FALSE,warning=FALSE,message=FALSE}  
 # Data Reshape
 d.sad <- data.frame(cbind(cases$class,cases$age,cases$music.yrs,cases$gender,acu.sad)) 
@@ -366,7 +366,7 @@ drawparti(grouping = d.sad$type, x = d.sad$LDA2, y = d.sad$LDA3, xlab = "LDA2", 
 
 \clearpage
 
-## Figure 4. Cannonical Discriminant Analysis (CDA)
+# Figure 4. Cannonical Discriminant Analysis (CDA)
 ```{r CDA, echo=FALSE,warning=FALSE,message=FALSE}  
 # Linear models for each emotion
 lm.sad   <- lm(cbind(nb0, nb2, nb4, nb8, nb16, nb32, nb64) ~ type, d.sad)
