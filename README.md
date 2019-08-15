@@ -16,11 +16,11 @@ Index
     -   [Accuracy for both emotions: All subjects](#accuracy-for-both-emotions-all-subjects)
     -   [Fine Structure Accuracy by Gender](#fine-structure-accuracy-by-gender)
 -   [Figure 2. Accuracy and discriminability concerning Happy and Sad](#figure-2.-accuracy-and-discriminability-concerning-happy-and-sad)
--   [Accuracy calculaded by subjects and group](#accuracy-calculaded-by-subjects-and-group)
+    -   [Accuracy calculaded by subjects and group](#accuracy-calculaded-by-subjects-and-group)
     -   [ANOVA: Comparisons between groups](#anova-comparisons-between-groups)
 -   [Linear Discriminant Analysis: Happy](#linear-discriminant-analysis-happy)
-    -   [Linear Discriminant Analysis: Sad](#linear-discriminant-analysis-sad)
-    -   [Figure 4. Cannonical Discriminant Analysis (CDA)](#figure-4.-cannonical-discriminant-analysis-cda)
+-   [Linear Discriminant Analysis: Sad](#linear-discriminant-analysis-sad)
+-   [Figure 4. Cannonical Discriminant Analysis (CDA)](#figure-4.-cannonical-discriminant-analysis-cda)
 
 
 Abstract
@@ -74,7 +74,7 @@ Figure 2. Accuracy and discriminability concerning Happy and Sad
 ![](README_files/figure-markdown_github/fig2.hist-1.png)
 
 Accuracy calculaded by subjects and group
-=========================================
+-----------------------------------------
 
 ![](README_files/figure-markdown_github/Lines-dots-1.png)![](README_files/figure-markdown_github/Lines-dots-2.png)
 
@@ -437,7 +437,7 @@ Happy total % correct: 0.546875
 ![](README_files/figure-markdown_github/lda.happy-1.png)
 
 Linear Discriminant Analysis: Sad
----------------------------------
+=================================
 
 <table style="width:49%;">
 <colgroup>
@@ -643,7 +643,7 @@ Sad total % correct: 0.640625
 ![](README_files/figure-markdown_github/lda.sad.plots-1.png)
 
 Figure 4. Cannonical Discriminant Analysis (CDA)
-------------------------------------------------
+================================================
 
 Two generalized canonical discriminant analysis was compute using the multivariate linear model:
 *G**r**o**u**p* *n**b*0 + *n**b*2 + *n**b*4 + *n**b*8 + *n**b*16 + *n**b*32 + *n**b*64
