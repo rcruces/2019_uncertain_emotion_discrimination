@@ -2,7 +2,7 @@
 # Uncertain emotion discrimination differences between musicians and nonmusicians is determined by fine structure association: Hilbert transform psychophysics
 
 **Authors:** Francis A.M. Mannoa,b, Raul R. Cruces, Condon Laub, Fernando A. Barriosc  
-**Contact:** <Francis.Manno@nyu.edu>, <fbarrios@unam.mx>, <condon.lau@cityu.edu.hk>  
+**Contact:** <Francis.Manno@Sydney.edu.au>, <fbarrios@unam.mx>, <condon.lau@cityu.edu.hk>  
 
 **OSF:** <https://osf.io/8ws7a>  
 **Keywords:** emotion; psychophysics; modulation; fine structure; envelope; frequency; amplitude  
