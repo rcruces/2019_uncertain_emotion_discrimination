@@ -2,19 +2,16 @@
 title: "Uncertain emotion discrimination differences between musicians and nonmusicians is determined by fine structure association: Hilbert transform psychophysics"
 date: "Updated on 15 August, 2019"
 output: 
-  md_document:
-    variant: markdown_github
-    toc: true    # table of content true
-    toc_depth: 2 # upto three depths of headings (specified by #, ## and ###)
-
+  pdf_document:
+    latex_engine: xelatex
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-**Authors:** Francis A.M. Mannoa,b,†, Raul R. Cruces, Condon Laub,†, Fernando A. Barriosc,†  
-**Contact:** Francis.Manno@nyu.edu, fbarrios@unam.mx, condon.lau@cityu.edu.hk  
+**Authors:** Francis A.M. Manno, Raul R. Cruces, Condon Lau, Fernando A. Barrios   
+**Contact:** francis.manno@sydney.edu.au, raulrcruces@inb.unam.mx, fbarrios@unam.mx, condon.lau@cityu.edu.hk  
   
 **OSF:** https://osf.io/8ws7a  
 **Keywords:** emotion; psychophysics; modulation; fine structure; envelope; frequency; amplitude  
@@ -54,7 +51,7 @@ eval(parse(text = script)); rm(script)
 
 # Set path, change this to your home/githubDirectory path
 home="~/"
-setwd(paste0(home,"git_here/2019_uncertain_emotion_detection"))
+setwd(paste0(home,"git_here/2019_uncertain_emotion_discrimination"))
 
 # Read the Subjects Information
 cases <- read.csv("database/cases.csv")
