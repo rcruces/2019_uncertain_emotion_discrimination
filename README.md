@@ -1,7 +1,7 @@
 
 # Uncertain emotion discrimination differences between musicians and nonmusicians is determined by fine structure association: Hilbert transform psychophysics
 
-**Authors:** Francis A.M. Mannoa,b, Raul R. Cruces, Condon Laub, Fernando A. Barriosc  
+**Authors:** Francis A.M. Manno, Raul R. Cruces, Condon Lau, Fernando A. Barrios  
 **Contact:** <francis.manno@sydney.edu.au>, <raulrcruces@inb.unam.mx>, <fbarrios@unam.mx>, <condon.lau@cityu.edu.hk>  
 
 **OSF:** <https://osf.io/8ws7a>  
