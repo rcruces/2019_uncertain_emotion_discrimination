@@ -4,6 +4,7 @@
 **Authors:** Francis A.M. Manno, Raul R. Cruces, Condon Lau, Fernando A. Barrios  
 **Contact:** <francis.manno@sydney.edu.au>, <raulrcruces@inb.unam.mx>, <fbarrios@unam.mx>, <condon.lau@cityu.edu.hk>  
 
+**DOI:** <https://doi.org/10.3389/fnins.2019.00902>  
 **OSF:** <https://osf.io/8ws7a>  
 **Keywords:** emotion; psychophysics; modulation; fine structure; envelope; frequency; amplitude  
 
